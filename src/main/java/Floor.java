@@ -1,18 +1,27 @@
 package main.java;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Floor
 {
-    private List<Person> people;
-
-    public List<Person> getPeople()
+    private ArrayList<Person> waiting = new ArrayList<>();
+    private ArrayList<Person> offLoaded = new ArrayList<>();
+    public ArrayList<Person> getWaiting()
     {
-        return people;
+        return waiting;
     }
 
-    public void setPeople(List<Person> people)
+    public void setWaiting(ArrayList<Person> people)
     {
-        this.people = people;
+        this.waiting = people;
+    }
+    public void setWaiting(Person person)
+    {
+        waiting.add(person);
+    }
+    public void setOffLoaded(Person person)
+    {
+        offLoaded.add(person);
     }
 }

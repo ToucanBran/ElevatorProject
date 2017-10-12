@@ -1,7 +1,10 @@
 package main.java;
 
+import org.apache.log4j.Logger;
+
 public class MoveableImpl implements Moveable
 {
+    public final Logger log = Logger.getRootLogger();
     private int currentFloor, currentDirection;
 
     // Two constructors here just in case there's a point where we have
@@ -20,6 +23,7 @@ public class MoveableImpl implements Moveable
     @Override
     public void move()
     {
+        log.info(String.format("Moving from %d to %d", currentFloor, currentFloor + currentDirection));
         currentFloor += currentDirection;
     }
     @Override

@@ -1,17 +1,15 @@
 package main.java;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class Building
 {
     private static Building building = new Building();
+    private ElevatorController ec = new ElevatorController(null);
     private HashMap<Integer, Floor> floors = new HashMap<>();
-    private HashMap<String, Elevator> elevators = new HashMap<>();
 
-    private Building(){};
+    private Building(){}
 
     public static Building getInstance()
     {
@@ -27,13 +25,9 @@ public class Building
         }
     }
 
-    public void setElevators(int amountOfElevators, String type, int maxCapacity)
+    public void setElevators(int amountOfElevators, String type, int maxCapacity,  int maxIdleTime, int maxOpenTime, int maxFloorTime)
     {
-        for(int i = 1; i <= amountOfElevators; i++)
-        {
-            Elevator elevator = new Elevator(type, maxCapacity);
-            elevators.put(elevator.elevatorId, elevator);
-        }
+        ec.setElevators(amountOfElevators, type, maxCapacity, maxIdleTime, maxOpenTime, maxFloorTime);
     }
 
     public Floor getFloor(int floorNumber)
@@ -41,4 +35,23 @@ public class Building
         return floors.get(floorNumber);
     }
 
+    public HashMap<Integer, Floor> getFloors()
+    {
+        return floors;
+    }
+
+    public Collection<Elevator> getElevators()
+    {
+        return ec.getElevators().values();
+    }
+
+    public void addPeopleToFloor(ArrayList<Person> people, int floor)
+    {
+        floors.get(floor).setWaiting(people);
+    }
+
+    public ElevatorController getElevatorController()
+    {
+        return ec;
+    }
 }
