@@ -1,8 +1,14 @@
 package main.java;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class Main
@@ -11,15 +17,10 @@ public class Main
 
     public static void main(String[] args)
     {
-        ArrayList<Person> people = new ArrayList<>();
-
-        Building.getInstance().setFloors(20);
-        Person p1 = new Person(1);
-        people.add(p1);
-        Building.getInstance().setElevators(2, null, 10, 10, 5, 2 );
-        Building.getInstance().addPeopleToFloor(people, 10);
+        InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
+        Reader reader = new InputStreamReader(jsonStream);
         ElevatorController ec = Building.getInstance().getElevatorController();
-
+        Building.getInstance().setupBuilding(new Gson().fromJson(reader,JsonObject.class));
         Building.getInstance().getFloors().forEach((floorNo, floor)->
         {
             if(floor.getWaiting().stream().anyMatch((person) -> person.getDestination() < floorNo))

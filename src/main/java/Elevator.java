@@ -107,8 +107,6 @@ public class Elevator implements Moveable
             Person rider = iterator.next();
             if (rider.getDestination() == currentFloorNumber)
             {
-                if (currentFloorNumber == 1)
-                    log.info(String.format("debugging..\n"));
                 log.info(String.format("Person %s is leaving the elevator\n", rider.hashCode()));
                 currentFloor.setOffLoaded(rider);
                 iterator.remove();

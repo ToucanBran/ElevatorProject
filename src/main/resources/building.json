@@ -1,0 +1,25 @@
+{
+  "amountOfElevators":2,
+  "type":"",
+  "maxCapacity":10,
+  "maxIdleTime":10,
+  "maxOpenTime":5,
+  "maxFloorTime":2,
+  "amountOfFloors":20,
+  "floors":[
+    {
+      "1": {
+        "people": [
+          {
+            "name": "p1",
+            "destination": 10
+          },
+          {
+            "name": "p2",
+            "destination": 4
+          }
+        ]
+      }
+    }
+  ]
+}
