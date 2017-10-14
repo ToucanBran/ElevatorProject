@@ -23,7 +23,6 @@ public class MoveableImpl implements Moveable
     @Override
     public void move()
     {
-        log.info(String.format("Moving from %d to %d", currentFloor, currentFloor + currentDirection));
         currentFloor += currentDirection;
     }
     @Override

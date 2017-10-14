@@ -1,25 +1,33 @@
 {
-  "amountOfElevators":2,
-  "type":"",
-  "maxCapacity":10,
-  "maxIdleTime":10,
-  "maxOpenTime":5,
-  "maxFloorTime":2,
-  "amountOfFloors":20,
-  "floors":[
-    {
-      "1": {
-        "people": [
-          {
-            "name": "p1",
-            "destination": 10
-          },
-          {
-            "name": "p2",
-            "destination": 4
-          }
-        ]
+  "amountOfElevators": 2,
+  "amountOfFloors": 20,
+  "elevatorProperties": {
+    "type": "",
+    "maxCapacity": 10,
+    "maxIdleTime": 10,
+    "maxOpenTime": 5,
+    "maxFloorTime": 2
+  },
+  "peopleOnFloors": {
+    "1": [
+      {
+        "name": "p1",
+        "destination": 10
+      },
+      {
+        "name": "p2",
+        "destination": 4
       }
-    }
-  ]
+    ],
+    "8": [
+      {
+        "name": "p3",
+        "destination": 1
+      },
+      {
+        "name": "p4",
+        "destination": 7
+      }
+    ]
+  }
 }

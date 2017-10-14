@@ -5,22 +5,15 @@ import com.google.gson.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.ArrayList;
-
 public class Main
 {
     private static final Logger logger = LogManager.getLogger("HelloWorld");
 
     public static void main(String[] args)
     {
-        InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
-        Reader reader = new InputStreamReader(jsonStream);
+
+        Building.getInstance().setupBuilding();
         ElevatorController ec = Building.getInstance().getElevatorController();
-        Building.getInstance().setupBuilding(new Gson().fromJson(reader,JsonObject.class));
         Building.getInstance().getFloors().forEach((floorNo, floor)->
         {
             if(floor.getWaiting().stream().anyMatch((person) -> person.getDestination() < floorNo))

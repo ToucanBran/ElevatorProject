@@ -12,11 +12,11 @@ public class ElevatorController implements Requestable
         requestable = RequestableFactory.createRequestable(type);
     }
 
-    public void setElevators(int amountOfElevators, String type, int maxCapacity, int maxIdleTime, int maxOpenTime, int maxFloorTime)
+    public void setElevators(int amountOfElevators, ElevatorProperties ep)
     {
         for(int i = 0; i < amountOfElevators; i++)
         {
-            Elevator elevator = new Elevator(type, maxCapacity, maxIdleTime, maxOpenTime, maxFloorTime);
+            Elevator elevator = new Elevator(ep);
             elevators.put(elevator.elevatorId, elevator);
         }
     }

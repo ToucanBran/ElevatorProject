@@ -1,6 +1,6 @@
 package main.java;
 
-public class RequestableImpl implements Requestable
+public class ElevatorRequestableImpl implements Requestable
 {
     final int DOWN = -1, IDLE = 0, UP = 1;
     @Override
@@ -8,7 +8,9 @@ public class RequestableImpl implements Requestable
     {
         for (Elevator elevator : Building.getInstance().getElevators())
         {
-            if (elevator.getDirection() == direction && (elevator.getLocation() + direction) == currentFloor)
+            int elLocation = elevator.getLocation();
+
+            if (elevator.getDirection() == direction && (elLocation + direction) == currentFloor)
             {
                 elevator.addStop(currentFloor);
                 break;
@@ -18,16 +20,11 @@ public class RequestableImpl implements Requestable
                 elevator.addStop(currentFloor);
                 break;
             }
-            else if (onWay(elevator.getLocation(), elevator.getDirection(), currentFloor))
+            else if (Helpers.onWay(elLocation, elevator.getDirection(), currentFloor) && Helpers.isClose(elLocation, currentFloor))
             {
                 elevator.addStop(currentFloor);
                 break;
             }
         }
-    }
-
-    public boolean onWay(int currentFloor, int direction, int destination)
-    {
-        return Math.abs(currentFloor - destination) > Math.abs((currentFloor + direction) - destination);
     }
 }

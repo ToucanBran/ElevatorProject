@@ -13,19 +13,16 @@ public class Elevator implements Moveable
     private ArrayList<Person> riders = new ArrayList<>();
     private ArrayList<Integer> stops = new ArrayList<>();
     private Moveable moveable;
-    private int MAX_CAPACITY, MAX_IDLE_TIME, MAX_DOOR_OPEN_TIME, MAX_FLOOR_TIME;
     public String elevatorId;
+    private ElevatorProperties properties;
     private double nextActionTime;
     private boolean doorsOpen = false;
 
-    public Elevator(String type, int maxCapacity, int maxIdleTime, int maxOpenTime, int maxFloorTime)
+    public Elevator(ElevatorProperties properties)
     {
-        MAX_CAPACITY = maxCapacity;
-        MAX_IDLE_TIME = maxIdleTime;
-        MAX_DOOR_OPEN_TIME = maxOpenTime;
-        MAX_FLOOR_TIME = maxFloorTime;
+        this.properties = properties;
         elevatorId = UUID.randomUUID().toString();
-        moveable = MoveableFactory.createMoveable(type);
+        moveable = MoveableFactory.createMoveable(properties.getType());
     }
 
     @Override
@@ -59,13 +56,14 @@ public class Elevator implements Moveable
 
     public boolean isFull()
     {
-        return riders.size() == MAX_CAPACITY;
+        return riders.size() == properties.getMaxCapacity();
     }
-
 
     public void addStop(int floor)
     {
         stops.add(floor);
+        if (stops.size() == 1)
+            checkNextDestination();
     }
 
     public void stop(int currentFloor)
@@ -82,7 +80,7 @@ public class Elevator implements Moveable
             {
                 if (!isFull())
                 {
-                    log.info(String.format("Adding person %s\n", person.hashCode()));
+                    log.info(String.format("Elevator %s - Adding person %s\n", elevatorId, person.getName()));
                     riders.add(person);
                     addStop(person.getDestination());
                 }
@@ -97,7 +95,7 @@ public class Elevator implements Moveable
     //TODO: Implement wait time
     public void openDoors(int currentFloorNumber)
     {
-        log.info(String.format("Opening door...\n"));
+        log.info(String.format("Elevator %s - Opening door...\n", elevatorId));
         doorsOpen = true;
 
         Floor currentFloor = Building.getInstance().getFloor(currentFloorNumber);
@@ -107,7 +105,7 @@ public class Elevator implements Moveable
             Person rider = iterator.next();
             if (rider.getDestination() == currentFloorNumber)
             {
-                log.info(String.format("Person %s is leaving the elevator\n", rider.hashCode()));
+                log.info(String.format("Elevator %s - Person %s is leaving elevator.\n", elevatorId, rider.getName()));
                 currentFloor.setOffLoaded(rider);
                 iterator.remove();
             }
@@ -120,6 +118,7 @@ public class Elevator implements Moveable
     //TODO: Implement
     public void closeDoors()
     {
+        log.info(String.format("Elevator %s - Closing doors.", elevatorId));
         doorsOpen = false;
         checkNextDestination();
     }
@@ -127,17 +126,17 @@ public class Elevator implements Moveable
     //TODO: Handle when elevator is idle and has floors to go to
     public void checkNextDestination()
     {
-       if (stops.size() == 0)
+        if (stops.size() == 0)
         {
-            log.info(String.format("setting direction to idle\n"));
+            log.info(String.format("Elevator %s - setting direction to idle\n", elevatorId));
             setDirection(IDLE);
         } else if (getDirection() == UP && !stops.stream().anyMatch((floor) -> floor > getLocation()))
         {
-            log.info(String.format("setting direction to down\n"));
+            log.info(String.format("Elevator %s - setting direction to down\n", elevatorId));
             setDirection(DOWN);
         } else if (getDirection() == DOWN && !stops.stream().anyMatch((floor) -> floor < getLocation()))
         {
-            log.info(String.format("setting direction to up\n"));
+            log.info(String.format("Elevator %s - setting direction to up\n", elevatorId));
             setDirection(UP);
         } else if (getDirection() == IDLE && stops.size() > 0)
         {
@@ -155,23 +154,21 @@ public class Elevator implements Moveable
             if (doorsOpen)
             {
                 closeDoors();
-                if(isIdle())
+                if (isIdle())
                     nextActionTime = actionTime;
-            }
-            else if (stops.contains(currentFloor))
+            } else if (stops.contains(currentFloor))
             {
-                log.info(String.format("stop\n"));
-                nextActionTime = actionTime + MAX_DOOR_OPEN_TIME;
+                log.info(String.format("Elevator %s - stopping.\n", elevatorId));
+                nextActionTime = actionTime + properties.getMaxOpenTime();
                 stop(currentFloor);
-            }
-            else if (stops.size() > 0)
+            } else if (stops.size() > 0)
             {
-                log.info(String.format("move\n"));
+                log.info(String.format("Elevator %s - Moving from %d to %d\n", elevatorId, moveable.getLocation(),
+                        moveable.getLocation() + moveable.getDirection()));
                 checkNextDestination();
-                nextActionTime = actionTime + MAX_FLOOR_TIME;
+                nextActionTime = actionTime + properties.getMaxFloorTime();
                 move();
-            }
-            else if (isIdle() && (actionTime - nextActionTime) == MAX_IDLE_TIME && currentFloor != 1)
+            } else if (isIdle() && (actionTime - nextActionTime) == properties.getMaxIdleTime() && currentFloor != 1)
             {
                 stops.add(1);
             }

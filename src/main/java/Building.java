@@ -3,11 +3,13 @@ package main.java;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class Building
@@ -33,9 +35,9 @@ public class Building
         }
     }
 
-    private void setElevators(int amountOfElevators, String type, int maxCapacity,  int maxIdleTime, int maxOpenTime, int maxFloorTime)
+    private void setElevators(int amountOfElevators, ElevatorProperties ep)
     {
-        ec.setElevators(amountOfElevators, type, maxCapacity, maxIdleTime, maxOpenTime, maxFloorTime);
+        ec.setElevators(amountOfElevators, ep);
     }
 
     public Floor getFloor(int floorNumber)
@@ -69,15 +71,23 @@ public class Building
         return ec;
     }
 
-    public void setupBuilding(JsonObject jObj)
+    public void setupBuilding()
     {
-        setElevators(jObj.get("amountOfElevators").getAsInt(), jObj.get("type").getAsString(), jObj.get("maxCapacity").getAsInt(),
-                jObj.get("maxIdleTime").getAsInt(), jObj.get("maxOpenTime").getAsInt(), jObj.get("maxFloorTime").getAsInt());
+        InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
+        Reader reader = new InputStreamReader(jsonStream);
+        Gson gson = new Gson();
 
+        JsonObject jObj = gson.fromJson(reader,JsonObject.class);
+        JsonObject pof = (jObj.get("peopleOnFloors").getAsJsonObject());
+        ElevatorProperties ep = gson.fromJson(jObj.get("elevatorProperties"), ElevatorProperties.class);
+        Type intArrayListMap = new TypeToken<HashMap<Integer, ArrayList<Person>>>(){}.getType();
+
+        HashMap<Integer, ArrayList<Person>> map = gson.fromJson(pof, intArrayListMap);
+
+        setElevators(jObj.get("amountOfElevators").getAsInt(), ep);
         setFloors(jObj.get("amountOfFloors").getAsInt());
-        JsonArray jArr = new Gson().fromJson(jObj.get("floors"), JsonArray.class);
 
-
-
+        // Map is a key value pair of floor number to an arraylist of people waiting on that floor
+        map.entrySet().forEach((people) -> addPeopleToFloor(people.getValue(), people.getKey()));
     }
 }
