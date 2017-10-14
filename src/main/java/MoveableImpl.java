@@ -16,15 +16,18 @@ public class MoveableImpl implements Moveable
         this.currentFloor = 1;
         currentDirection = IDLE;
     }
+
     public MoveableImpl(int currentFloor)
     {
         this.currentFloor = currentFloor;
     }
+
     @Override
     public void move()
     {
         currentFloor += currentDirection;
     }
+
     @Override
     public int getLocation()
     {

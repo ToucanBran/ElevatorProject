@@ -1,9 +1,9 @@
 package main.java;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import main.elevatorgui.gui.ElevatorDisplay;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
@@ -15,6 +15,7 @@ import java.util.*;
 public class Building
 {
     private final Logger log = Logger.getRootLogger();
+    // Always going to have a building instance so just creating one here
     private static Building building = new Building();
     private ElevatorController ec = new ElevatorController(null);
     private HashMap<Integer, Floor> floors = new HashMap<>();
@@ -66,11 +67,6 @@ public class Building
 
     }
 
-    public ElevatorController getElevatorController()
-    {
-        return ec;
-    }
-
     public void setupBuilding()
     {
         InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
@@ -83,11 +79,19 @@ public class Building
         Type intArrayListMap = new TypeToken<HashMap<Integer, ArrayList<Person>>>(){}.getType();
 
         HashMap<Integer, ArrayList<Person>> map = gson.fromJson(pof, intArrayListMap);
+        int totalFloors = jObj.get("amountOfFloors").getAsInt();
+        int totalElevators = jObj.get("amountOfElevators").getAsInt();
 
-        setElevators(jObj.get("amountOfElevators").getAsInt(), ep);
-        setFloors(jObj.get("amountOfFloors").getAsInt());
+        ElevatorDisplay.getInstance().initialize(totalFloors);
+        setElevators(totalElevators, ep);
+        setFloors(totalFloors);
 
         // Map is a key value pair of floor number to an arraylist of people waiting on that floor
         map.entrySet().forEach((people) -> addPeopleToFloor(people.getValue(), people.getKey()));
+    }
+
+    public void startElevators()
+    {
+        ec.start();
     }
 }

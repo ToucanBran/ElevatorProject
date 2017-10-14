@@ -1,5 +1,5 @@
 {
-  "amountOfElevators": 2,
+  "amountOfElevators": 4,
   "amountOfFloors": 20,
   "elevatorProperties": {
     "type": "",
@@ -27,6 +27,17 @@
       {
         "name": "p4",
         "destination": 7
+      }
+    ],
+    "15": [
+      {
+        "name": "p5",
+        "destination": 20
+      },
+      {
+        "name": "p10",
+
+        "destination": 11
       }
     ]
   }

@@ -1,6 +1,7 @@
 package main.java;
 
 
+import main.elevatorgui.gui.ElevatorDisplay;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -13,15 +14,15 @@ public class Elevator implements Moveable
     private ArrayList<Person> riders = new ArrayList<>();
     private ArrayList<Integer> stops = new ArrayList<>();
     private Moveable moveable;
-    public String elevatorId;
+    public int elevatorId;
     private ElevatorProperties properties;
     private double nextActionTime;
     private boolean doorsOpen = false;
 
-    public Elevator(ElevatorProperties properties)
+    public Elevator(int id, ElevatorProperties properties)
     {
         this.properties = properties;
-        elevatorId = UUID.randomUUID().toString();
+        elevatorId = id;
         moveable = MoveableFactory.createMoveable(properties.getType());
     }
 
@@ -97,7 +98,7 @@ public class Elevator implements Moveable
     {
         log.info(String.format("Elevator %s - Opening door...\n", elevatorId));
         doorsOpen = true;
-
+        ElevatorDisplay.getInstance().openDoors(elevatorId);
         Floor currentFloor = Building.getInstance().getFloor(currentFloorNumber);
         Iterator<Person> iterator = riders.iterator();
         while (iterator.hasNext())
@@ -120,6 +121,7 @@ public class Elevator implements Moveable
     {
         log.info(String.format("Elevator %s - Closing doors.", elevatorId));
         doorsOpen = false;
+        ElevatorDisplay.getInstance().closeDoors(elevatorId);
         checkNextDestination();
     }
 
@@ -172,6 +174,10 @@ public class Elevator implements Moveable
             {
                 stops.add(1);
             }
+            // Hack to get display direction. This code uses an int value for direction because it helps move floors
+            // and other cool math stuff.
+            ElevatorDisplay.Direction dir = getDirection() > 0 ? ElevatorDisplay.Direction.UP : ElevatorDisplay.Direction.DOWN;
+            ElevatorDisplay.getInstance().updateElevator(elevatorId, moveable.getLocation(), riders.size(), dir);
         }
     }
 }
