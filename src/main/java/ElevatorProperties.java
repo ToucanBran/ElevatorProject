@@ -2,22 +2,11 @@ package main.java;
 
 public class ElevatorProperties
 {
-    private int amountOfElevators;
     private int maxCapacity;
     private int maxIdleTime;
     private int maxOpenTime;
     private int maxFloorTime;
     private String type;
-
-    public int getAmountOfElevators()
-    {
-        return amountOfElevators;
-    }
-
-    public void setAmountOfElevators(int amountOfElevators)
-    {
-        this.amountOfElevators = amountOfElevators;
-    }
 
     public int getMaxCapacity()
     {

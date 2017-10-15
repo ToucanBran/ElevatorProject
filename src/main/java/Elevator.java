@@ -15,6 +15,7 @@ public class Elevator implements Moveable
     private ArrayList<Integer> stops = new ArrayList<>();
     private Moveable moveable;
     public int elevatorId;
+    private int requestedDirection;
     private ElevatorProperties properties;
     private double nextActionTime;
     private boolean doorsOpen = false;
@@ -50,6 +51,16 @@ public class Elevator implements Moveable
         return moveable.getLocation();
     }
 
+    public int getRequestedDirection()
+    {
+        return requestedDirection;
+    }
+
+    public void setRequestedDirection(int requestedDirection)
+    {
+        this.requestedDirection = requestedDirection;
+    }
+
     public boolean isIdle()
     {
         return moveable.getDirection() == IDLE;
@@ -79,7 +90,8 @@ public class Elevator implements Moveable
         {
             for (Person person : people)
             {
-                if (!isFull())
+                int direction = requestedDirection != IDLE ? requestedDirection : getDirection();
+                if (!isFull() && Helpers.onWay(getLocation(), direction, person.getDestination()))
                 {
                     log.info(String.format("Elevator %s - Adding person %s\n", elevatorId, person.getName()));
                     riders.add(person);
@@ -125,25 +137,27 @@ public class Elevator implements Moveable
         checkNextDestination();
     }
 
-    //TODO: Handle when elevator is idle and has floors to go to
     public void checkNextDestination()
     {
         if (stops.size() == 0)
         {
             log.info(String.format("Elevator %s - setting direction to idle\n", elevatorId));
             setDirection(IDLE);
-        } else if (getDirection() == UP && !stops.stream().anyMatch((floor) -> floor > getLocation()))
-        {
-            log.info(String.format("Elevator %s - setting direction to down\n", elevatorId));
-            setDirection(DOWN);
-        } else if (getDirection() == DOWN && !stops.stream().anyMatch((floor) -> floor < getLocation()))
-        {
-            log.info(String.format("Elevator %s - setting direction to up\n", elevatorId));
-            setDirection(UP);
-        } else if (getDirection() == IDLE && stops.size() > 0)
+        }
+        else if (getDirection() == IDLE && stops.size() > 0)
         {
             int direction = (getLocation() - stops.get(0)) < 0 ? UP : DOWN;
             setDirection(direction);
+        }
+        else if (!stops.stream().anyMatch((floor) -> Helpers.onWay(getLocation(), getDirection(), floor)))
+        {
+            if (getDirection() == requestedDirection)
+            {
+                // TODO: make this make more sense.
+                setRequestedDirection(IDLE);
+            }
+            // Hack. This causes the direction to switch from either up to down or down to up.
+            setDirection(getDirection() * -1);
         }
     }
 
@@ -158,20 +172,22 @@ public class Elevator implements Moveable
                 closeDoors();
                 if (isIdle())
                     nextActionTime = actionTime;
-            } else if (stops.contains(currentFloor))
+           } else if (stops.contains(currentFloor))
             {
                 log.info(String.format("Elevator %s - stopping.\n", elevatorId));
                 nextActionTime = actionTime + properties.getMaxOpenTime();
                 stop(currentFloor);
             } else if (stops.size() > 0)
             {
-                log.info(String.format("Elevator %s - Moving from %d to %d\n", elevatorId, moveable.getLocation(),
-                        moveable.getLocation() + moveable.getDirection()));
                 checkNextDestination();
+                log.info(String.format("Elevator %s - Moving from %d to %d\n", elevatorId, getLocation(),
+                        moveable.getLocation() + moveable.getDirection()));
+
                 nextActionTime = actionTime + properties.getMaxFloorTime();
                 move();
             } else if (isIdle() && (actionTime - nextActionTime) == properties.getMaxIdleTime() && currentFloor != 1)
             {
+                setRequestedDirection(DOWN);
                 stops.add(1);
             }
             // Hack to get display direction. This code uses an int value for direction because it helps move floors

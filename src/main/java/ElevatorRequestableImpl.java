@@ -9,19 +9,12 @@ public class ElevatorRequestableImpl implements Requestable
         for (Elevator elevator : Building.getInstance().getElevators())
         {
             int elLocation = elevator.getLocation();
+            boolean isOnWayAndClose = Helpers.onWay(elLocation, elevator.getDirection(), currentFloor)
+                    && Helpers.isClose(elLocation, currentFloor);
 
-            if (elevator.getDirection() == direction && (elLocation + direction) == currentFloor)
+            if (isOnWayAndClose || elevator.isIdle())
             {
-                elevator.addStop(currentFloor);
-                break;
-            }
-            else if (elevator.isIdle())
-            {
-                elevator.addStop(currentFloor);
-                break;
-            }
-            else if (Helpers.onWay(elLocation, elevator.getDirection(), currentFloor) && Helpers.isClose(elLocation, currentFloor))
-            {
+                elevator.setRequestedDirection(direction);
                 elevator.addStop(currentFloor);
                 break;
             }
