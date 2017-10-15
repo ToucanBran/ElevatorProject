@@ -78,10 +78,14 @@ public class Elevator implements Moveable
             checkNextDestination();
     }
 
-    public void stop(int currentFloor)
+    public void stop(int currentFloorNumber)
     {
-        stops.removeIf((floor) -> floor == currentFloor);
-        openDoors(currentFloor);
+        stops.removeIf((floor) -> floor == currentFloorNumber);
+
+        Floor currentFloor = Building.getInstance().getFloor(currentFloorNumber);
+
+        if (riders.size() > 0 || currentFloor.getWaiting().size() > 0)
+            openDoors(currentFloorNumber);
     }
 
     public ArrayList<Person> addRiders(ArrayList<Person> people)
