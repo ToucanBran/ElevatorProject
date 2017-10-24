@@ -1,34 +1,37 @@
 package main.java;
 
+import main.elevatorgui.gui.ElevatorDisplay;
+
 import java.util.HashMap;
 
 public class ElevatorController implements Requestable
 {
     private Requestable requestable;
-    private HashMap<String, Elevator> elevators = new HashMap<>();
+    private HashMap<Integer, Elevator> elevators = new HashMap<>();
 
     public ElevatorController(String type)
     {
         requestable = RequestableFactory.createRequestable(type);
     }
 
-    public void setElevators(int amountOfElevators, String type, int maxCapacity, int maxIdleTime, int maxOpenTime, int maxFloorTime)
+    public void setElevators(int amountOfElevators, ElevatorProperties ep)
     {
         for(int i = 0; i < amountOfElevators; i++)
         {
-            Elevator elevator = new Elevator(type, maxCapacity, maxIdleTime, maxOpenTime, maxFloorTime);
+            Elevator elevator = new Elevator(i + 1, ep);
             elevators.put(elevator.elevatorId, elevator);
+            ElevatorDisplay.getInstance().addElevator(elevator.elevatorId, 1);
         }
     }
 
-    public HashMap<String, Elevator> getElevators()
+    public HashMap<Integer, Elevator> getElevators()
     {
         return elevators;
     }
 
     @Override
-    public void request(int destination, int direction)
+    public void request(int currentFloor, int direction)
     {
-        requestable.request(destination, direction);
+        requestable.request(currentFloor, direction);
     }
 }

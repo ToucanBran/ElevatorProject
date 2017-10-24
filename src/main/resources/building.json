@@ -1,0 +1,11 @@
+{
+  "amountOfElevators": 4,
+  "amountOfFloors": 20,
+  "elevatorProperties": {
+    "type": "",
+    "maxCapacity": 10,
+    "maxIdleTime": 10,
+    "maxOpenTime": 5,
+    "maxFloorTime": 2
+  }
+}

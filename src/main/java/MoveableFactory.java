@@ -6,6 +6,6 @@ public class MoveableFactory
     // or whatever now since there's only one type of impl
     public static Moveable createMoveable(String type)
     {
-        return new MoveableImpl();
+        return new ElevatorMoveableImpl();
     }
 }
