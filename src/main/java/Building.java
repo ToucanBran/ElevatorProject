@@ -2,15 +2,15 @@ package main.java;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 import main.elevatorgui.gui.ElevatorDisplay;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class Building
 {
@@ -20,7 +20,9 @@ public class Building
     private ElevatorController ec = new ElevatorController(null);
     private HashMap<Integer, Floor> floors = new HashMap<>();
 
-    private Building(){}
+    private Building(){
+        setupBuilding();
+    }
 
     public static Building getInstance()
     {
@@ -56,6 +58,7 @@ public class Building
         return ec.getElevators().values();
     }
 
+    // Used if you want to create people in the JSON file.
     private void addPeopleToFloor(ArrayList<Person> people, int floor)
     {
         people.stream().forEach((person) -> {
@@ -67,31 +70,31 @@ public class Building
 
     }
 
-    public void setupBuilding()
+    public void floorButtonPress(int currentFloor, int direction)
+    {
+        ec.request(currentFloor, direction);
+    }
+
+    // SetupBuilding reads in the JSON file and sets up building/elevator properties.
+    private void setupBuilding()
     {
         InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
         Reader reader = new InputStreamReader(jsonStream);
         Gson gson = new Gson();
 
         JsonObject jObj = gson.fromJson(reader,JsonObject.class);
-        JsonObject pof = (jObj.get("peopleOnFloors").getAsJsonObject());
         ElevatorProperties ep = gson.fromJson(jObj.get("elevatorProperties"), ElevatorProperties.class);
-        Type intArrayListMap = new TypeToken<HashMap<Integer, ArrayList<Person>>>(){}.getType();
 
-        HashMap<Integer, ArrayList<Person>> map = gson.fromJson(pof, intArrayListMap);
         int totalFloors = jObj.get("amountOfFloors").getAsInt();
         int totalElevators = jObj.get("amountOfElevators").getAsInt();
 
         ElevatorDisplay.getInstance().initialize(totalFloors);
         setElevators(totalElevators, ep);
         setFloors(totalFloors);
-
-        // Map is a key value pair of floor number to an arraylist of people waiting on that floor
-        map.entrySet().forEach((people) -> addPeopleToFloor(people.getValue(), people.getKey()));
     }
 
-    public void startElevators()
+    public void addToFloor(int floor, Person p)
     {
-        ec.start();
+        floors.get(floor).setWaiting(p);
     }
 }

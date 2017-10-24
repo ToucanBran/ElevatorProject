@@ -12,14 +12,13 @@ public class ElevatorMoveableImpl implements Moveable
     // the first.
     public ElevatorMoveableImpl()
     {
-        // Not zero-basing floors
-        this.currentFloor = 1;
-        currentDirection = IDLE;
+        this(1);
     }
 
     public ElevatorMoveableImpl(int currentFloor)
     {
         this.currentFloor = currentFloor;
+        currentDirection = IDLE;
     }
 
     @Override
