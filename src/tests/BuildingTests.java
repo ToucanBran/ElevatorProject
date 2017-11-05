@@ -2,6 +2,7 @@ package tests;
 
 
 import main.java.Building;
+import main.java.Directions;
 import main.java.Person;
 import main.java.TimeManager;
 import org.apache.log4j.Logger;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 public class BuildingTests
 {
     private final Logger log = Logger.getRootLogger();
-    final int DOWN = -1, IDLE = 0, UP = 1;
 
     @Test
     public void Test1()
@@ -27,7 +27,7 @@ public class BuildingTests
                         log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                                 p.getName(), 1, "up", p.getDestination()));
 
-                        Building.getInstance().floorButtonPress(1, UP);
+                        Building.getInstance().floorButtonPress(1, Directions.UP);
                         log.info(String.format("Person %s presses %s button on floor %d.",
                                 p.getName(), "up", 1));
                     }
@@ -50,7 +50,7 @@ public class BuildingTests
                         log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                                 p.getName(), 1, "up", p.getDestination()));
 
-                        Building.getInstance().floorButtonPress(1, UP);
+                        Building.getInstance().floorButtonPress(1, Directions.UP);
                         log.info(String.format("Person %s presses %s button on floor %d.",
                                 p.getName(), "up", 1));
                     }
@@ -63,7 +63,7 @@ public class BuildingTests
                         log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                                 p.getName(), 1, "up", p.getDestination()));
 
-                        Building.getInstance().floorButtonPress(1, UP);
+                        Building.getInstance().floorButtonPress(1, Directions.UP);
                         log.info(String.format("Person %s presses %s button on floor %d.",
                                 p.getName(), "up", 1));
                     }
@@ -76,7 +76,7 @@ public class BuildingTests
                         log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                                 p.getName(), 3, "up", p.getDestination()));
 
-                        Building.getInstance().floorButtonPress(3, UP);
+                        Building.getInstance().floorButtonPress(3, Directions.UP);
                         log.info(String.format("Person %s presses %s button on floor %d.",
                                 p.getName(), "up", 3));
                     }
@@ -99,7 +99,7 @@ public class BuildingTests
                     log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                             p.getName(), 1, "up", p.getDestination()));
 
-                    Building.getInstance().floorButtonPress(1, UP);
+                    Building.getInstance().floorButtonPress(1, Directions.UP);
                     log.info(String.format("Person %s presses %s button on floor %d.",
                             p.getName(), "up", 1));
                 }
@@ -112,7 +112,7 @@ public class BuildingTests
                     log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                             p.getName(), 1, "up", p.getDestination()));
 
-                    Building.getInstance().floorButtonPress(1, UP);
+                    Building.getInstance().floorButtonPress(1, Directions.UP);
                     log.info(String.format("Person %s presses %s button on floor %d.",
                             p.getName(), "up", 1));
                 }
@@ -125,7 +125,7 @@ public class BuildingTests
                     log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                             p.getName(), 1, "up", p.getDestination()));
 
-                    Building.getInstance().floorButtonPress(1, UP);
+                    Building.getInstance().floorButtonPress(1, Directions.UP);
                     log.info(String.format("Person %s presses %s button on floor %d.",
                             p.getName(), "up", 1));
                 }
@@ -138,7 +138,7 @@ public class BuildingTests
                     log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                             p.getName(), 1, "up", p.getDestination()));
 
-                    Building.getInstance().floorButtonPress(1, UP);
+                    Building.getInstance().floorButtonPress(1, Directions.UP);
                     log.info(String.format("Person %s presses %s button on floor %d.",
                             p.getName(), "up", 1));
                 }
@@ -151,7 +151,7 @@ public class BuildingTests
                     log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                             p.getName(), 1, "up", p.getDestination()));
 
-                    Building.getInstance().floorButtonPress(1, UP);
+                    Building.getInstance().floorButtonPress(1, Directions.UP);
                     log.info(String.format("Person %s presses %s button on floor %d.",
                             p.getName(), "up", 1));
                 }

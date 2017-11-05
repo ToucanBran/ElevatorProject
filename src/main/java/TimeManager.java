@@ -7,7 +7,6 @@ import java.util.function.Function;
 public class TimeManager
 {
     private final Logger log = Logger.getRootLogger();
-    final int DOWN = -1, IDLE = 0, UP = 1;
     private static TimeManager timeManager = new TimeManager();
     long currentTime = 0;
 
@@ -65,8 +64,8 @@ public class TimeManager
             Building.getInstance().addToFloor(1, p);
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                     p.getName(), 1, "up", p.getDestination()));
-
-            Building.getInstance().floorButtonPress(1, UP);
+            
+            Building.getInstance().floorButtonPress(1, Directions.UP);
             log.info(String.format("Person %s presses %s button on floor %d.",
                     p.getName(), "up", 1));
         }
@@ -79,7 +78,7 @@ public class TimeManager
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                     p.getName(), 2, "up", p.getDestination()));
 
-            Building.getInstance().floorButtonPress(2, UP);
+            Building.getInstance().floorButtonPress(2, Directions.UP);
             log.info(String.format("Person %s presses %s button on floor %d.",
                     p.getName(), "up", 1));
         }
@@ -92,7 +91,7 @@ public class TimeManager
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                     p.getName(), 3, "up", p.getDestination()));
 
-            Building.getInstance().floorButtonPress(3, UP);
+            Building.getInstance().floorButtonPress(3, Directions.UP);
             log.info(String.format("Person %s presses %s button on floor %d.",
                     p.getName(), "up", 3));
         }
@@ -105,7 +104,7 @@ public class TimeManager
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
                     p.getName(), 1, "up", p.getDestination()));
 
-            Building.getInstance().floorButtonPress(1, UP);
+            Building.getInstance().floorButtonPress(1, Directions.UP);
             log.info(String.format("Person %s presses %s button on floor %d.",
                     p.getName(), "up", 1));
         }

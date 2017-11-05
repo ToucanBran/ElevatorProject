@@ -7,7 +7,6 @@ import java.util.Collection;
 public class ElevatorRequestableImpl implements Requestable
 {
     private final Logger log = Logger.getRootLogger();
-    final int DOWN = -1, IDLE = 0, UP = 1;
 
     // Performs the logic to choose the best elevator to pick up the person
     @Override

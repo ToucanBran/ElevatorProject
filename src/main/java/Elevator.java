@@ -55,10 +55,6 @@ public class Elevator implements Moveable
         return moveable.getLocation();
     }
 
-    public ArrayList<Integer> getAllStops()
-    {
-        return stops;
-    }
 
     // Returns a list of floor requests in a nice string format
     public String getFloorRequestsString()
@@ -89,7 +85,7 @@ public class Elevator implements Moveable
 
     public boolean isIdle()
     {
-        return moveable.getDirection() == IDLE;
+        return moveable.getDirection() == Directions.IDLE;
     }
 
     public boolean isFull()
@@ -135,7 +131,7 @@ public class Elevator implements Moveable
                 // This sets the direction when situations arise where the requested direction is idle (think
                 // when it's being reset to the first floor) and sets it to the direction of the next stop. This
                 // seems kind of hacky so I'll fix this later
-                int direction = requestedDirection != IDLE ? requestedDirection : getDirection();
+                int direction = requestedDirection != Directions.IDLE ? requestedDirection : getDirection();
 
                 // Adds the rider if the elevator isn't full and the person's destination is on the way
                 if (!isFull() && Helpers.onWay(getLocation(), direction, person.getDestination()))
@@ -207,13 +203,13 @@ public class Elevator implements Moveable
         if (stops.size() == 0)
         {
             log.info(String.format("Elevator %s - setting direction to idle\n", elevatorId));
-            setDirection(IDLE);
+            setDirection(Directions.IDLE);
         }
-        // If direction is IDLE and we have stops, set to up if the stop is higher than current location. Set to
+        // If direction is Directions.IDLE and we have stops, set to up if the stop is higher than current location. Set to
         // down if below
-        else if (getDirection() == IDLE && stops.size() > 0)
+        else if (getDirection() == Directions.IDLE && stops.size() > 0)
         {
-            int direction = (getLocation() - stops.get(0)) < 0 ? UP : DOWN;
+            int direction = (getLocation() - stops.get(0)) < 0 ? Directions.UP : Directions.DOWN;
             setDirection(direction);
         }
         //If there are no stops on the way of our current direction...
@@ -225,7 +221,7 @@ public class Elevator implements Moveable
             if (getDirection() == requestedDirection)
             {
                 // TODO: make this make more sense.
-                setRequestedDirection(IDLE);
+                setRequestedDirection(Directions.IDLE);
             }
             // Flip the elevator direction since there are no stops in our current direction.
             setDirection(getDirection() * -1);
@@ -269,7 +265,7 @@ public class Elevator implements Moveable
             // If we're idle, we've hit the max idle time, and we're not already on the first floor, reset back to floor 1
             else if (isIdle() && (actionTime - nextActionTime) == properties.getMaxIdleTime() && currentFloor != 1)
             {
-                setRequestedDirection(DOWN);
+                setRequestedDirection(Directions.DOWN);
                 stops.add(1);
             }
             // Hack to get display direction. This code uses an int value for direction because it helps move floors

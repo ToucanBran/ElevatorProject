@@ -18,7 +18,7 @@ public class ElevatorMoveableImpl implements Moveable
     public ElevatorMoveableImpl(int currentFloor)
     {
         this.currentFloor = currentFloor;
-        currentDirection = IDLE;
+        currentDirection = Directions.IDLE;
     }
 
     @Override
