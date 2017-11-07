@@ -9,11 +9,28 @@ public class Helpers
 
     // Method that returns true if a destination is relatively close to a current location.
     // The closeness gap is sort of arbitrary but it scales up/down based on total floors.
-    public static boolean isClose(int currentLocation, int destination)
+    public static boolean isClose(int currentLocation, int destination, int timePerFloor, int maxTime)
     {
-        int totalFloors = Building.getInstance().getFloors().size();
-        int maxGap = totalFloors / 10;
-        return Math.abs(currentLocation - destination) <= maxGap;
+        return getEstimatedWaitTime(currentLocation, destination, timePerFloor) <= maxTime;
+    }
 
+    public static int calculateMaxWaitTime(int numFloors, int timePerFloor, int doorTime)
+    {
+        return numFloors * (timePerFloor + doorTime) * 2;
+    }
+
+    public static int calculateRideWaitTime(int numFloors, int timePerFloor, int doorTime)
+    {
+        return numFloors * (timePerFloor + doorTime);
+    }
+
+    public static int getEstimatedWaitTime(int currentLocation, int destination, int timePerFloor)
+    {
+        return Math.abs(currentLocation - destination) * timePerFloor;
+    }
+
+    public static int getEstimatedRidTime(int currentLocation, int destination, int timePerFloor)
+    {
+        return Math.abs(currentLocation - destination) * timePerFloor;
     }
 }

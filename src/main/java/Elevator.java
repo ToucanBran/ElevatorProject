@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 public class Elevator implements Moveable
 {
     private final Logger log = Logger.getRootLogger();
+    public int elevatorId;
     private ArrayList<Person> riders = new ArrayList<>();
     private ArrayList<Integer> stops = new ArrayList<>();
-
     // Originally, I only had a stops ArrayList but the project requirements asked that I print rider and floor
     // requests separately.
     private ArrayList<Integer> floorRequests = new ArrayList<>(), riderRequests = new ArrayList<>();
@@ -22,7 +22,6 @@ public class Elevator implements Moveable
     private ElevatorProperties properties;
     private double nextActionTime;
     private boolean doorsOpen = false;
-    public int elevatorId;
 
     public Elevator(int id, ElevatorProperties properties)
     {

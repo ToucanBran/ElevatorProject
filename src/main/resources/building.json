@@ -6,6 +6,6 @@
     "maxCapacity": 10,
     "maxIdleTime": 10,
     "maxOpenTime": 5,
-    "maxFloorTime": 2
+    "maxFloorTime": 1
   }
 }

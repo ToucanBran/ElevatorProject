@@ -17,8 +17,9 @@ public class Building
     private final Logger log = Logger.getRootLogger();
     // Always going to have a building instance so just creating one here
     private static Building building = new Building();
-    private ElevatorController ec = new ElevatorController(null);
+    private ElevatorController ec = new ElevatorController();
     private HashMap<Integer, Floor> floors = new HashMap<>();
+    private ElevatorProperties elevatorProperties;
 
     private Building(){
         setupBuilding();
@@ -89,6 +90,9 @@ public class Building
         int totalElevators = jObj.get("amountOfElevators").getAsInt();
 
         ElevatorDisplay.getInstance().initialize(totalFloors);
+        ec.setMaxWaitTime(Helpers.calculateMaxWaitTime(totalFloors, ep.getMaxFloorTime(),ep.getMaxOpenTime()));
+        ec.setMaxRideTime(Helpers.calculateRideWaitTime(totalFloors, ep.getMaxFloorTime(),ep.getMaxOpenTime()));
+        this.elevatorProperties = ep;
         setElevators(totalElevators, ep);
         setFloors(totalFloors);
     }
@@ -96,5 +100,10 @@ public class Building
     public void addToFloor(int floor, Person p)
     {
         floors.get(floor).setWaiting(p);
+    }
+
+    public ElevatorProperties getElevatorProperties()
+    {
+        return elevatorProperties;
     }
 }
