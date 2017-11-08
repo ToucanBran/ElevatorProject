@@ -141,7 +141,7 @@ public class Elevator implements Moveable
                     double pickupTime = TimeManager.getInstance().getCurrentTime();
                     person.setRideTime(pickupTime);
                     person.setWaitTime(pickupTime - person.getWaitTime());
-
+                    Building.getInstance().getFloor(this.getLocation()).addWaitTime(person.getWaitTime());
                     riders.add(person);
                     addStop(person.getDestination(), "Rider");
 

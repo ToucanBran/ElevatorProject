@@ -55,6 +55,8 @@ public class TimeManager
             }
         }
         System.out.println(peopleInRotation);
+        TimeReport tr = new TimeReport();
+        tr.printReport();
     }
 
     // Fallback method for runTime simulation
