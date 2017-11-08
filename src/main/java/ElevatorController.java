@@ -4,6 +4,7 @@ import javafx.util.Pair;
 import main.elevatorgui.gui.ElevatorDisplay;
 import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class ElevatorController
@@ -42,7 +43,7 @@ public class ElevatorController
         return elevators;
     }
 
-    public void request(int currentFloor, int direction)
+    public void request(int currentFloor, int requestedDirection)
     {
         boolean requestFilled = false;
         int maxFloorTime = Building.getInstance().getElevatorProperties().getMaxFloorTime();
@@ -60,18 +61,20 @@ public class ElevatorController
                 // gets elevator with closest wait time
                 int currentWaitTime = Helpers.getEstimatedWaitTime(elLocation, currentFloor, maxFloorTime);
                 if (elevatorAndWaitTime == null || elevatorAndWaitTime.getValue() > currentWaitTime)
+                {
                     elevatorAndWaitTime = new Pair(elevator, currentWaitTime);
+                }
             }
         }
 
         if (elevatorAndWaitTime != null)
         {
-            addStop(currentFloor, direction, elevatorAndWaitTime.getKey());
+            addStop(currentFloor, requestedDirection, elevatorAndWaitTime.getKey());
         }
         // This will happen when no elevators are close and all elevators are in use.
         else
         {
-            requestBackLog.put(currentFloor, direction);
+            requestBackLog.put(currentFloor, requestedDirection);
         }
     }
 

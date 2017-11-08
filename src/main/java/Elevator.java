@@ -138,7 +138,7 @@ public class Elevator implements Moveable
                     log.info(String.format("Elevator %s - Person %s entered [Riders: %s]\n", elevatorId,
                             person.getName(), getRidersString()));
 
-                    double pickupTime = TimeManager.getInstance().currentTime;
+                    double pickupTime = TimeManager.getInstance().getCurrentTime();
                     person.setRideTime(pickupTime);
                     person.setWaitTime(pickupTime - person.getWaitTime());
 
@@ -170,7 +170,7 @@ public class Elevator implements Moveable
             Person rider = iterator.next();
             if (rider.getDestination() == currentFloorNumber)
             {
-                double totalRideTime = TimeManager.getInstance().currentTime - rider.getRideTime();
+                double totalRideTime = TimeManager.getInstance().getCurrentTime() - rider.getRideTime();
                 rider.setRideTime(totalRideTime);
                 currentFloor.setOffLoaded(rider);
                 iterator.remove();

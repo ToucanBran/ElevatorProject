@@ -28,9 +28,4 @@ public class Helpers
     {
         return Math.abs(currentLocation - destination) * timePerFloor;
     }
-
-    public static int getEstimatedRidTime(int currentLocation, int destination, int timePerFloor)
-    {
-        return Math.abs(currentLocation - destination) * timePerFloor;
-    }
 }

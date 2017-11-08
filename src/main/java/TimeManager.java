@@ -2,14 +2,16 @@ package main.java;
 
 import org.apache.log4j.Logger;
 
+import java.util.Random;
+import java.util.Timer;
 import java.util.function.Function;
 
 public class TimeManager
 {
     private final Logger log = Logger.getRootLogger();
     private static TimeManager timeManager = new TimeManager();
-    long currentTime = 0;
-
+    private long currentTime = 0;
+    private int peopleInRotation = 0;
     private TimeManager()
     {
     }
@@ -27,17 +29,18 @@ public class TimeManager
 
     public void runTime()
     {
-        runTime(()->requestForElevator());
+        runTime(900,5);
     }
 
     // I have a runnable type param here so users can pass in their own simulation people/floor presses
-    public void runTime(Runnable f)
+    public void runTime(int duration, int peoplePerMinute)
     {
-        long duration = 120;
+        final int DURATION = duration, PEOPLE_PER_MINUTE = peoplePerMinute;
+        long totalPeople = (DURATION / 60) * PEOPLE_PER_MINUTE;
 
-        while (currentTime <= duration)
+        while (currentTime < DURATION)
         {
-            f.run();
+            requestForElevator(DURATION/totalPeople);
             for (Elevator e : Building.getInstance().getElevators())
             {
                 e.doAction(currentTime);
@@ -51,63 +54,36 @@ public class TimeManager
                 ex.printStackTrace();
             }
         }
+        System.out.println(peopleInRotation);
     }
 
     // Fallback method for runTime simulation
-    private void requestForElevator()
+    private void requestForElevator(long interval)
     {
-        if (currentTime == 0)
+        if (currentTime % interval == 0)
         {
+            Random rand = new Random();
+            int randomFloor = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
+            int randomDestination, direction;
+            do
+            {
+                randomDestination = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
+            }while(randomDestination == randomFloor);
 
-            Person p = new Person(20, "P1");
+            // TODO:// HACK - Fix this
+            direction = randomDestination < randomFloor ? Directions.DOWN : Directions.UP;
+            String directionString = randomDestination < randomFloor ? "DOWN" : "UP";
 
-            Building.getInstance().addToFloor(1, p);
+            Person p = new Person(randomDestination, "P" + ++peopleInRotation);
+            Building.getInstance().addToFloor(randomFloor, p);
+
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
-                    p.getName(), 1, "up", p.getDestination()));
-            
-            Building.getInstance().floorButtonPress(1, Directions.UP);
+                    p.getName(), randomFloor, directionString, p.getDestination()));
+
             log.info(String.format("Person %s presses %s button on floor %d.",
-                    p.getName(), "up", 1));
+                    p.getName(), directionString, randomFloor));
+
+            Building.getInstance().floorButtonPress(randomFloor, direction);
         }
-
-        if (currentTime == 1)
-        {
-            Person p = new Person(10, "P3");
-
-            Building.getInstance().addToFloor(2, p);
-            log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
-                    p.getName(), 2, "up", p.getDestination()));
-
-            Building.getInstance().floorButtonPress(2, Directions.UP);
-            log.info(String.format("Person %s presses %s button on floor %d.",
-                    p.getName(), "up", 1));
-        }
-
-        if (currentTime == 2)
-        {
-            Person p = new Person(10, "P4");
-
-            Building.getInstance().addToFloor(3, p);
-            log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
-                    p.getName(), 3, "up", p.getDestination()));
-
-            Building.getInstance().floorButtonPress(3, Directions.UP);
-            log.info(String.format("Person %s presses %s button on floor %d.",
-                    p.getName(), "up", 3));
-        }
-
-        if (currentTime == 9)
-        {
-            Person p = new Person(10, "P2");
-
-            Building.getInstance().addToFloor(1, p);
-            log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
-                    p.getName(), 1, "up", p.getDestination()));
-
-            Building.getInstance().floorButtonPress(1, Directions.UP);
-            log.info(String.format("Person %s presses %s button on floor %d.",
-                    p.getName(), "up", 1));
-        }
-
     }
 }
