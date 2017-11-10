@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class Building
 {
@@ -20,9 +21,12 @@ public class Building
     private ElevatorController ec = new ElevatorController();
     private HashMap<Integer, Floor> floors = new HashMap<>();
     private ElevatorProperties elevatorProperties;
+    private Statistics riderStats, personStats;
 
     private Building(){
         setupBuilding();
+        riderStats = StatisticsFactory.createStatistics("Ride");
+        personStats = StatisticsFactory.createStatistics("Person");
     }
 
     public static Building getInstance()
@@ -105,5 +109,27 @@ public class Building
     public ElevatorProperties getElevatorProperties()
     {
         return elevatorProperties;
+    }
+
+
+    public void addRiderStat(int startFloor, int destination, double rideTime)
+    {
+        Double[] entries = {new Double(startFloor), new Double(destination), rideTime};
+        riderStats.addEntry(entries);
+    }
+
+    public HashMap<String, List<Double>> getRiderStats()
+    {
+        return (HashMap<String, List<Double>>) riderStats.getStatistics();
+    }
+
+    public void addPersonStat(PersonProperties personProperties)
+    {
+        personStats.addEntry(new PersonProperties[]{personProperties});
+    }
+
+    public HashMap<String, PersonProperties> getPersonStats()
+    {
+        return (HashMap<String, PersonProperties>) personStats.getStatistics();
     }
 }

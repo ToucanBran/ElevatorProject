@@ -32,6 +32,7 @@ public class Floor
     public void setOffLoaded(Person person)
     {
         offLoaded.add(person);
+        Building.getInstance().addRiderStat(person.getStart(), person.getDestination(),person.getRideTime());
     }
 
     public List<Double> getOffLoadedRideTimes()

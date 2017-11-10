@@ -76,7 +76,7 @@ public class TimeManager
             direction = randomDestination < randomFloor ? Directions.DOWN : Directions.UP;
             String directionString = randomDestination < randomFloor ? "DOWN" : "UP";
 
-            Person p = new Person(randomDestination, "P" + ++peopleInRotation);
+            Person p = new Person(randomDestination, "P" + ++peopleInRotation, randomFloor);
             Building.getInstance().addToFloor(randomFloor, p);
 
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
