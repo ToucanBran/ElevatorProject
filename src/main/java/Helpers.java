@@ -1,10 +1,35 @@
 package main.java;
 
+import java.util.Set;
+
 public class Helpers
 {
     public static boolean onWay(int currentLocation, int direction, int destination)
     {
-        return Math.abs(currentLocation - destination) > Math.abs((currentLocation + direction) - destination);
+        return Math.abs(currentLocation - destination) >= Math.abs((currentLocation + direction) - destination);
+    }
+
+    // Overloaded method used to take into account direction set by previous requests. This avoids situations where an
+    // elevator will pick up a person and end up going the wrong direction than their initial request.
+    public static boolean onWay(int currentLocation, int direction, int destination, int requestedDirection, int floorRequestedDirection,
+                                Set<Integer> stops, int topFloor)
+    {
+        // checks if something is going in the same direction toward a destination
+        if (onWay(currentLocation, direction, destination))
+        {
+            if (stops.contains(destination) && requestedDirection == floorRequestedDirection)
+                return true;
+            else if (requestedDirection == Directions.IDLE)
+                return true;
+            if (stops.size() > 0)
+            {
+                if (direction == Directions.DOWN && floorRequestedDirection == Directions.DOWN)
+                    return stops.stream().min(Integer::compare).get() <= destination;
+                else if (direction == Directions.UP && floorRequestedDirection == Directions.UP)
+                    return stops.stream().min(Integer::compare).get() >= destination;
+            }
+        }
+        return false;
     }
 
     // Method that returns true if a destination is relatively close to a current location.

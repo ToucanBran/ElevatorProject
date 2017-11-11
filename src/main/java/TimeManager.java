@@ -35,12 +35,12 @@ public class TimeManager
     // I have a runnable type param here so users can pass in their own simulation people/floor presses
     public void runTime(int duration, int peoplePerMinute)
     {
-        final int DURATION = duration, PEOPLE_PER_MINUTE = peoplePerMinute;
-        long totalPeople = (DURATION / 60) * PEOPLE_PER_MINUTE;
+        final int DURATION = duration;
+        final double PEOPLE_PER_MINUTE = peoplePerMinute;
 
         while (currentTime < DURATION)
         {
-            requestForElevator(DURATION/totalPeople);
+            requestForElevator(PEOPLE_PER_MINUTE / 60);
             for (Elevator e : Building.getInstance().getElevators())
             {
                 e.doAction(currentTime);
@@ -59,12 +59,12 @@ public class TimeManager
         tr.printReport();
     }
 
-    // Fallback method for runTime simulation
-    private void requestForElevator(long interval)
+    private void requestForElevator(double chance)
     {
-        if (currentTime % interval == 0)
+        Random rand = new Random();
+
+        if (rand.nextFloat() <= chance)
         {
-            Random rand = new Random();
             int randomFloor = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
             int randomDestination, direction;
             do
@@ -77,6 +77,7 @@ public class TimeManager
             String directionString = randomDestination < randomFloor ? "DOWN" : "UP";
 
             Person p = new Person(randomDestination, "P" + ++peopleInRotation, randomFloor);
+            p.setWaitTime(currentTime);
             Building.getInstance().addToFloor(randomFloor, p);
 
             log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",

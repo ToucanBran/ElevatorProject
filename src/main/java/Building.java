@@ -75,9 +75,13 @@ public class Building
 
     }
 
+    public void floorButtonPress(int currentFloor, int direction, int excludeElevatorId)
+    {
+        ec.request(currentFloor, direction, excludeElevatorId);
+    }
     public void floorButtonPress(int currentFloor, int direction)
     {
-        ec.request(currentFloor, direction);
+        floorButtonPress(currentFloor, direction, -1);
     }
 
     // SetupBuilding reads in the JSON file and sets up building/elevator properties.

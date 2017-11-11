@@ -4,8 +4,8 @@ import javafx.util.Pair;
 import main.elevatorgui.gui.ElevatorDisplay;
 import org.apache.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ElevatorController
 {
@@ -43,18 +43,49 @@ public class ElevatorController
         return elevators;
     }
 
-    public void request(int currentFloor, int requestedDirection)
+    public void request(int currentFloor, int requestedDirection, int excludeElevator)
     {
         boolean requestFilled = false;
         int maxFloorTime = Building.getInstance().getElevatorProperties().getMaxFloorTime();
+
+        int elevatorId = chooseElevator(currentFloor, requestedDirection, Building.getInstance().getElevators(), maxFloorTime, excludeElevator);
+
+        if (elevatorId != -1)
+        {
+            Elevator elevator = Building.getInstance().getElevators().stream().filter(e -> e.elevatorId == elevatorId).findAny().get();
+            addStop(currentFloor, requestedDirection, elevator);
+        }
+        // This will happen when no elevators are close and all elevators are in use.
+        else
+        {
+            requestBackLog.put(currentFloor, requestedDirection);
+        }
+    }
+    public void request(int currentFloor, int requestedDirection)
+    {
+       request(currentFloor, requestedDirection, -1);
+    }
+    public int chooseElevator(int currentFloor, int requestedDirection, Collection<Elevator> elevators, int maxFloorTime,
+                              int excludeElevatorId)
+    {
+        int maxFloor = Building.getInstance().getFloors().size();
         Pair<Elevator, Integer> elevatorAndWaitTime = null;
-        for (Elevator elevator : Building.getInstance().getElevators())
+
+        List<Elevator> candidateElevators = elevators.stream().filter(elevator ->
+                Helpers.onWay(elevator.getLocation(),elevator.getDirection(), currentFloor)
+                && (requestedDirection == elevator.getRequestedDirection() || elevator.getDirection() == Directions.IDLE))
+                .collect(Collectors.toList());
+
+        for (Elevator elevator : candidateElevators)
         {
             int elLocation = elevator.getLocation();
 
             //boolean that returns true if the elevator is on the way of the floor and is somewhat close.
-            boolean isOnWayAndClose = Helpers.onWay(elLocation, elevator.getDirection(), currentFloor)
-                    && Helpers.isClose(elLocation, currentFloor, maxFloorTime, maxWaitTime);
+            boolean isOnWayAndClose =
+                    Helpers.onWay(elLocation, elevator.getDirection(), currentFloor, elevator.getRequestedDirection(),
+                            requestedDirection, elevator.getFloorRequests(), maxFloor)
+                    && Helpers.isClose(elLocation, currentFloor, maxFloorTime, maxWaitTime)
+                    && elevator.elevatorId != excludeElevatorId;
 
             if (isOnWayAndClose || elevator.isIdle())
             {
@@ -66,18 +97,11 @@ public class ElevatorController
                 }
             }
         }
-
         if (elevatorAndWaitTime != null)
-        {
-            addStop(currentFloor, requestedDirection, elevatorAndWaitTime.getKey());
-        }
-        // This will happen when no elevators are close and all elevators are in use.
+            return elevatorAndWaitTime.getKey().elevatorId;
         else
-        {
-            requestBackLog.put(currentFloor, requestedDirection);
-        }
+            return -1;
     }
-
     private void addStop(int currentFloor, int direction, Elevator elevator)
     {
         String dir = direction < 0 ? "down" : "up";
@@ -85,8 +109,8 @@ public class ElevatorController
         log.info(String.format("Elevator %d is going to floor %d for %s request. " +
                         "[Floor Requests: %s][Rider Requests: %s]\n", elevator.elevatorId, currentFloor, dir, elevator.getFloorRequestsString(),
                 elevator.getRiderRequestsString()));
-        elevator.setRequestedDirection(direction);
-        elevator.addStop(currentFloor, "Floor");
+        elevator.setRequestedDirection(new FloorRequest(currentFloor, direction));
+        elevator.addStop(currentFloor, direction,"Floor");
 
     }
 }
