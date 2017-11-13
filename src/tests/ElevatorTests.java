@@ -8,39 +8,61 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ElevatorTests
 {
+
+
     @Test
-    public void ElevatorConflictingDirectionsTest()
+    public void ElevatorControllerTest_Floors_OnWay_Different_Requested_Directions()
     {
+        final int EXPECTED_ELEVATOR_ID = 1;
         Person p1 = new Person(8, "P1", 15);
         Person p2 = new Person(16, "P2", 11);
-        ElevatorProperties ep = new ElevatorProperties();
-        ep.setMaxCapacity(10);
-        Elevator elevator = new Elevator(1, ep);
-        // Add a floor request
-        elevator.addStop(15, Directions.DOWN, "Floor");
-        elevator.setRequestedDirection(new FloorRequest(15, Directions.DOWN));
-        //in this scenario, elevator starts at a floor below 3.
-        elevator.setDirection(Directions.UP);
+        Person p3 = new Person(16, "P3", 20);
+        Building.getInstance().addToFloor(11,p1);
+        Building.getInstance().addToFloor(15,p2);
+        Building.getInstance().addToFloor(20,p3);
 
-        // Add new floor request going the same direction as elevator but with a different requesting
-        // direction
-        elevator.addStop(11, Directions.UP, "Floor");
-        elevator.setRequestedDirection(new FloorRequest(11, Directions.UP));
-        //in this scenario, elevator starts at a floor below 3.
-        elevator.setDirection(Directions.UP);
+        assertTrue(Building.getInstance().floorButtonPress(11, Directions.UP).contains(EXPECTED_ELEVATOR_ID));
+        assertFalse(Building.getInstance().floorButtonPress(15, Directions.DOWN).contains(EXPECTED_ELEVATOR_ID));
+        assertTrue(Building.getInstance().floorButtonPress(20, Directions.DOWN).contains(EXPECTED_ELEVATOR_ID));
+    }
 
-        assertTrue(elevator.getFloorRequests().size() == 2);
-        // let's say elevator picks up a person and he/she wants to go to a floor above one of the
-        // floor requests. The new rider stop is in the same direction of the elevator but is
-        // contradicting the initial stop's requested direction. When this is the case, the
-        // all floor requests with conflicting directions should be sent back to the EC for
-        // a new elevator assignment
+    @Test
+    public void ElevatorControllerTest_Floors_OnWay_Same_Requested_Directions()
+    {
+        final int EXPECTED_ELEVATOR_ID = 1;
+        Person p1 = new Person(8, "P1", 15);
+        Person p2 = new Person(16, "P2", 11);
 
-        // elevator gets to floor 11...
-        Building.getInstance().addToFloor(11, p2);
-        elevator.openDoors(11);
+        Building.getInstance().addToFloor(11,p1);
+        Building.getInstance().addToFloor(15,p2);
 
-        assertTrue(!elevator.getFloorRequests().contains(15));
+        assertTrue(Building.getInstance().floorButtonPress(11, Directions.UP).contains(EXPECTED_ELEVATOR_ID));
+        assertTrue(Building.getInstance().floorButtonPress(15, Directions.UP).contains(EXPECTED_ELEVATOR_ID));
+    }
 
+    @Test
+    public void ElevatorControllerTest_Floors_NotOnWay_Same_Requested_Directions()
+    {
+        final int EXPECTED_ELEVATOR_ID = 1;
+        Person p1 = new Person(8, "P1", 15);
+        Person p2 = new Person(16, "P2", 5);
+
+        Building.getInstance().addToFloor(11,p1);
+        Building.getInstance().addToFloor(5,p2);
+
+
+        Elevator elevator1 = Building.getInstance().getElevators().iterator().next();
+        assertTrue(Building.getInstance().floorButtonPress(11, Directions.UP).contains(EXPECTED_ELEVATOR_ID));
+
+        // manually moving elevator for testing purposes
+        elevator1.setDirection(Directions.UP);
+        elevator1.doAction(1);
+        elevator1.doAction(2);
+        elevator1.doAction(3);
+        elevator1.doAction(4);
+        elevator1.doAction(5);
+        elevator1.doAction(6);
+
+        assertFalse(Building.getInstance().floorButtonPress(5, Directions.UP).contains(EXPECTED_ELEVATOR_ID));
     }
 }

@@ -19,7 +19,7 @@ public class BuildingTests
     @Test
     public void Test1()
     {
-        TimeManager.getInstance().runTime(60, 30);
+        TimeManager.getInstance().runTime(120, 10);
     }
 
     @Test

@@ -75,13 +75,13 @@ public class Building
 
     }
 
-    public void floorButtonPress(int currentFloor, int direction, int excludeElevatorId)
+    public ArrayList<Integer> floorButtonPress(int currentFloor, int direction, int excludeElevatorId)
     {
-        ec.request(currentFloor, direction, excludeElevatorId);
+        return ec.request(currentFloor, direction, excludeElevatorId);
     }
-    public void floorButtonPress(int currentFloor, int direction)
+    public ArrayList<Integer> floorButtonPress(int currentFloor, int direction)
     {
-        floorButtonPress(currentFloor, direction, -1);
+       return floorButtonPress(currentFloor, direction, -1);
     }
 
     // SetupBuilding reads in the JSON file and sets up building/elevator properties.

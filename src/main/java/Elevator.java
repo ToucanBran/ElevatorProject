@@ -208,16 +208,14 @@ public class Elevator implements Moveable
                 // Adds the rider if the elevator isn't full and the person's destination is on the way
                 if (!isFull() && Helpers.onWay(getLocation(), direction, person.getDestination()))
                 {
+                    person.enterElevator();
+                    riders.add(person);
                     log.info(String.format("Elevator %s - Person %s entered [Riders: %s]\n", elevatorId,
                             person.getName(), getRidersString()));
 
-                    double pickupTime = TimeManager.getInstance().getCurrentTime();
-                    person.setWaitTime(pickupTime - person.getWaitTime());
-                    person.setRideTime(pickupTime);
                     Building.getInstance().getFloor(this.getLocation()).addWaitTime(person.getWaitTime());
-                    riders.add(person);
-                    addStop(person.getDestination(), direction, "Rider");
 
+                    addStop(person.getDestination(), direction, "Rider");
                     log.info(String.format("Elevator %s - Rider request made for floor %d.[Floor Requests: %s][Rider Requests: %s]\n",
                             elevatorId, person.getDestination(), getFloorRequestsString(), getRiderRequestsString()));
                 }
@@ -243,8 +241,7 @@ public class Elevator implements Moveable
             Person rider = iterator.next();
             if (rider.getDestination() == currentFloorNumber)
             {
-                double totalRideTime = TimeManager.getInstance().getCurrentTime() - rider.getRideTime();
-                rider.setRideTime(totalRideTime);
+                rider.endRide();
                 currentFloor.setOffLoaded(rider);
                 iterator.remove();
                 log.info(String.format("Elevator %s - Person %s is leaving elevator.\n" +

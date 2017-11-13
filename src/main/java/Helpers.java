@@ -21,13 +21,15 @@ public class Helpers
                 return true;
             else if (requestedDirection == Directions.IDLE)
                 return true;
-            if (stops.size() > 0)
-            {
-                if (direction == Directions.DOWN && floorRequestedDirection == Directions.DOWN)
-                    return stops.stream().min(Integer::compare).get() <= destination;
-                else if (direction == Directions.UP && floorRequestedDirection == Directions.UP)
-                    return stops.stream().min(Integer::compare).get() >= destination;
-            }
+            //if (stops.size() > 0)
+            //{
+//                if (direction == Directions.DOWN && floorRequestedDirection == Directions.DOWN)
+//                    return stops.stream().min(Integer::compare).get() <= destination;
+//                else if (direction == Directions.UP && floorRequestedDirection == Directions.UP)
+//                    return stops.stream().min(Integer::compare).get() >= destination;
+                else if (direction == floorRequestedDirection)
+                    return true;
+            //}
         }
         return false;
     }

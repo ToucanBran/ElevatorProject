@@ -17,6 +17,7 @@ public class TimeReport implements Report
     private String waitTimesByFloor()
     {
         StringBuilder sb = new StringBuilder();
+        sb.append("******************************************Wait times for floors******************************************\n");
         String format = "%1$-15s%2$-20s%3$-20s%4$-20s%n";
         sb.append(String.format(format, "Start Floor", "Average Wait Time", "Min Wait Time", "Max Wait Time"));
         String timeFormat = "Floor %1$-10s%2$-20s%3$-20s%4$-20s%n";
@@ -36,17 +37,18 @@ public class TimeReport implements Report
 
     private String getAllTimesByPerson()
     {
-        int totalPeople = Building.getInstance().getPersonStats().size();
         StringBuilder sb = new StringBuilder();
+        sb.append("******************************************All times for people******************************************\n");
         String format = "%1$-15s%2$-20s%3$-20s%4$-20s%5$-20s%6$-20s%n";
         sb.append(String.format(format, "Person", "Start Floor", "End Floor", "Wait Time", "Ride Time", "Total Time"));
         String entryFormat = "%1$-15s%2$-20d%3$-20d%4$-20.2f%5$-20.2f%6$-20.2f%n";
-        Building.getInstance().getPersonStats().entrySet().forEach(entry ->
+        HashMap<String, PersonProperties> peopleStats = Building.getInstance().getPersonStats();
+        for (int i = 1; i <= peopleStats.size(); i++)
         {
-            PersonProperties p = entry.getValue();
+            PersonProperties p = peopleStats.get("P" + i);
             sb.append(String.format(entryFormat, p.getId(), p.getStart(), p.getDestination(), p.getWaitTime(),
                     p.getRideTime(), p.getTotalTime()));
-        });
+        }
         return sb.toString();
     }
     private String buildRideTimeReport(String type)
@@ -99,8 +101,11 @@ public class TimeReport implements Report
     {
 
         System.out.println(waitTimesByFloor());
+        System.out.printf("******************************************Average times from floor to floor******************************************\n");
         System.out.println(buildRideTimeReport("average"));
+        System.out.printf("******************************************Max times from floor to floor******************************************\n");
         System.out.println(buildRideTimeReport("max"));
+        System.out.printf("******************************************Min times from floor to floor******************************************\n");
         System.out.println(buildRideTimeReport("min"));
         System.out.println(getAllTimesByPerson());
 
