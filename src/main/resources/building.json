@@ -1,8 +1,14 @@
 {
   "amountOfElevators": 4,
   "amountOfFloors": 20,
+  "typeOfFloor":"Standard",
+  "typeOfPerson":"Standard",
+  "controllerAlgorithm":"Standard",
+  "duration": 60,
+  "peoplePerMinute": 5,
   "elevatorProperties": {
     "type": "",
+    "elevatorMovement": "Standard",
     "maxCapacity": 10,
     "maxIdleTime": 10,
     "maxOpenTime": 5,

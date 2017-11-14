@@ -7,7 +7,11 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+/**
+ * Elevator class holds all relevant information and methods for elevators
+ *
+ * @author Brandon Gomez
+ */
 public class Elevator implements Moveable
 {
     private final Logger log = Logger.getRootLogger();
@@ -18,6 +22,10 @@ public class Elevator implements Moveable
     // requests separately.
     private ArrayList<Integer> floorRequests = new ArrayList<>(), riderRequests = new ArrayList<>();
     private Moveable moveable;
+
+    // Requested direction holds the latest chosen floor and requested direction. Requested direction differs
+    // from getDirection() in that getDirection() returns which way the elevator is headed whereas requestedDirection
+    // is the direction the elevator will head after it picks up the requestor.
     private FloorRequest requestedDirection = new FloorRequest(-1, Directions.IDLE);
     private ElevatorProperties properties;
     private double nextActionTime;
@@ -27,7 +35,7 @@ public class Elevator implements Moveable
     {
         this.properties = properties;
         elevatorId = id;
-        moveable = MoveableFactory.createMoveable(properties.getType());
+        moveable = MoveableFactory.createMoveable(properties.getElevatorMovement());
     }
 
     @Override
@@ -74,20 +82,6 @@ public class Elevator implements Moveable
         return riders.stream().map(Object::toString).collect(Collectors.joining(","));
     }
 
-    public HashSet<Integer> getFloorRequests()
-    {
-        HashSet<Integer> floorReqsSet = new HashSet<>();
-        floorReqsSet.addAll(floorRequests);
-        return floorReqsSet;
-    }
-
-    public HashSet<Integer> getRiderRequests()
-    {
-        HashSet<Integer> riderReqsSet = new HashSet<>();
-        riderReqsSet.addAll(riderRequests);
-        return riderReqsSet;
-    }
-
     public int getRequestedDirection()
     {
         return requestedDirection.getDirection();
@@ -111,10 +105,10 @@ public class Elevator implements Moveable
         return riders.size() == properties.getMaxCapacity();
     }
 
-    public void addStop(int floor, int direction, String type)
+    public void addStop(int floor, int direction, String type) throws IllegalArgumentException
     {
         //TODO: possibly throw an error here
-        if (floor <= Building.getInstance().getFloors().size())
+        if (floor <= Building.getInstance().getFloors().size() && floor >= 1)
         {
             stops.add(new FloorRequest(floor, direction));
             if (type.equals("Rider") && !riderRequests.contains(floor))
@@ -125,59 +119,8 @@ public class Elevator implements Moveable
             if (stops.size() == 1)
                 checkNextDestination();
         }
-
-        // This will happen when a person picks a floor on the way of the elevator's current
-        // direction but is opposite of a requests future direction. When this happens, the
-        // elevator needs to throw that request back to the elevator controller to choose a new
-        // elevator for it
-//        HashSet s = new HashSet();
-//        s.addAll(stops);
-//        List<FloorRequest> rerequests = new ArrayList();
-//
-//
-//        if (riderRequests.size() > 0)
-//        {
-//            if (getDirection() == Directions.UP)
-//            {
-//                int maxFloorRequest = Collections.max(riderRequests);
-//
-//                rerequests = stops.stream().filter(floorReq ->
-//                   floorReq.getFloorNumber() <= maxFloorRequest
-//                                && floorReq.getDirection() != Directions.UP
-//                    ).collect(Collectors.toList());
-//            }
-//            else if (getDirection() == Directions.DOWN)
-//            {
-//                int minFloorRequest = Collections.min(riderRequests);
-//
-//                rerequests = stops.stream().filter(floorReq ->
-//                        floorReq.getFloorNumber() >= minFloorRequest
-//                                && floorReq.getDirection() != Directions.DOWN
-//                ).collect(Collectors.toList());
-//            }
-//        }
-//
-//        if (rerequests.size() > 0)
-//        {
-//            // This removes the floor request that's now going the opposite direction that this elevator
-//            // is going in
-//            stops.removeAll(rerequests);
-//
-//            // If for some reason, we have two requests for the same floor (one up, one down), This makes sure
-//            // to not remove it from the floor requests string unless we really only had a single request for that
-//            // floor
-//            ArrayList<Integer> removeFromFloorRequests = new ArrayList<>();
-//            for (int request : floorRequests)
-//            {
-//                if (stops.stream().noneMatch(floorReq-> floorReq.getFloorNumber() == request))
-//                    removeFromFloorRequests.add(request);
-//            }
-//
-//            floorRequests.removeAll(removeFromFloorRequests);
-//
-//            setRequestedDirection(new FloorRequest(floor, direction));
-//            Building.getInstance().floorButtonPress(requestedDirection.getFloorNumber(), requestedDirection.getDirection());
-//        }
+        else
+            throw new IllegalArgumentException("Invalid floor number");
     }
 
     public void stop(int currentFloorNumber)
@@ -204,6 +147,13 @@ public class Elevator implements Moveable
                 // seems kind of hacky so I'll fix this later
                 int direction = requestedDirection.getDirection() != Directions.IDLE ?
                         requestedDirection.getDirection() : getDirection();
+
+                // If we're going to the top floor, just make our direction as UP instead of the DOWN direction from
+                // the request. Vice-versa if we're going to the bottom floor
+                if (stops.contains(Building.getInstance().getTopFloor()) && getDirection() == Directions.UP)
+                    direction = Directions.UP;
+                else if(stops.contains(1) && getDirection() == Directions.DOWN)
+                    direction = Directions.DOWN;
 
                 // Adds the rider if the elevator isn't full and the person's destination is on the way
                 if (!isFull() && Helpers.onWay(getLocation(), direction, person.getDestination()))
@@ -289,12 +239,16 @@ public class Elevator implements Moveable
             // it will be.
             if (getDirection() == requestedDirection.getDirection())
             {
-                // TODO: make this make more sense.
                 setRequestedDirection(new FloorRequest(1, Directions.IDLE));
             }
             // Flip the elevator direction since there are no stops in our current direction.
             setDirection(getDirection() * -1);
         }
+    }
+
+    public boolean isStoppingAt(int floorNumber)
+    {
+        return stops.contains(floorNumber);
     }
 
     // DoAction is a method that performs an elevator action for one second.
@@ -316,6 +270,8 @@ public class Elevator implements Moveable
             // If we have a stop on the current floor, stop here.
             else if (stops.stream().anyMatch(stop-> stop.getFloorNumber() == currentFloor))
             {
+                if (currentFloor == 1)
+                    System.out.println();
                 log.info(String.format("Elevator %s - Arrived at floor %d for request.[Floor Requests: %s][Rider Requests: %s]\n",
                         elevatorId, currentFloor, getFloorRequestsString(), getRiderRequestsString()));
                 nextActionTime = actionTime + properties.getMaxOpenTime();
@@ -337,9 +293,20 @@ public class Elevator implements Moveable
                 setRequestedDirection(new FloorRequest(1, Directions.DOWN));
                 stops.add(new FloorRequest(1, Directions.DOWN));
             }
+            else if (!isIdle() && stops.size() == 0 && currentFloor == 1)
+            {
+                setDirection(Directions.IDLE);
+            }
+
             // Hack to get display direction. This code uses an int value for direction because it helps move floors
             // and other cool math stuff.
-            ElevatorDisplay.Direction dir = getDirection() > 0 ? ElevatorDisplay.Direction.UP : ElevatorDisplay.Direction.DOWN;
+
+            ElevatorDisplay.Direction dir = ElevatorDisplay.Direction.IDLE;
+            if (getDirection() == Directions.UP)
+                dir = ElevatorDisplay.Direction.UP;
+            else if (getDirection() == Directions.DOWN)
+                dir = ElevatorDisplay.Direction.DOWN;
+
             ElevatorDisplay.getInstance().updateElevator(elevatorId, moveable.getLocation(), riders.size(), dir);
         }
     }

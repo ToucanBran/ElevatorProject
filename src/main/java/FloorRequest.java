@@ -1,5 +1,11 @@
 package main.java;
 
+/**
+ * The FloorReqest object is used to store a request from a floor and includes both the floor where the
+ * request came from and the requested direction.
+ *
+ * @author Brandon Gomez
+ */
 public class FloorRequest
 {
     private int floorNumber;
@@ -14,11 +20,6 @@ public class FloorRequest
     public int getFloorNumber()
     {
         return floorNumber;
-    }
-
-    public void setFloorNumber(int floorNumber)
-    {
-        this.floorNumber = floorNumber;
     }
 
     public int getDirection()

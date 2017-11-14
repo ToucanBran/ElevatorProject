@@ -4,6 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * TimeReport prints the following reports;
+ * Avg/Min/Max wait time by floor
+ * Avg ride time from floor to floor
+ * Max ride time from floor to floor
+ * Min ride time from floor to floor
+ * Wait/Ride/Total time by Person
+ */
 public class TimeReport implements Report
 {
     private HashMap<Integer, ArrayList<Double>> floorWaitTimes = new HashMap<>();
@@ -69,7 +77,7 @@ public class TimeReport implements Report
                     String[] startEndFloors = entry.getKey().split("-");
                     int startFloor = Integer.parseInt(startEndFloors[0]) - 1;
                     int endFloor = Integer.parseInt(startEndFloors[1]) - 1;
-                    List<Double> times = entry.getValue();
+                    List<Double> times = entry.getValue().getRideTimes();
 
                     double time = 0;
                     if (type.equalsIgnoreCase("average"))

@@ -1,7 +1,19 @@
 package main.java;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Set;
 
+/**
+ * Helper class used for basic calculations and JSON parsing
+ *
+ * @author Brandon Gomez
+ */
 public class Helpers
 {
     public static boolean onWay(int currentLocation, int direction, int destination)
@@ -21,15 +33,9 @@ public class Helpers
                 return true;
             else if (requestedDirection == Directions.IDLE)
                 return true;
-            //if (stops.size() > 0)
-            //{
-//                if (direction == Directions.DOWN && floorRequestedDirection == Directions.DOWN)
-//                    return stops.stream().min(Integer::compare).get() <= destination;
-//                else if (direction == Directions.UP && floorRequestedDirection == Directions.UP)
-//                    return stops.stream().min(Integer::compare).get() >= destination;
-                else if (direction == floorRequestedDirection)
-                    return true;
-            //}
+            else if (direction == floorRequestedDirection)
+                return true;
+
         }
         return false;
     }
@@ -54,5 +60,23 @@ public class Helpers
     public static int getEstimatedWaitTime(int currentLocation, int destination, int timePerFloor)
     {
         return Math.abs(currentLocation - destination) * timePerFloor;
+    }
+
+    public static JsonElement getBuildingJson(String key) throws BuildSetupException
+    {
+        try
+        {
+            InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
+            Reader reader = new InputStreamReader(jsonStream);
+            Gson gson = new Gson();
+
+            JsonObject jObj = gson.fromJson(reader, JsonObject.class);
+            return jObj.get(key);
+        }
+        catch (NullPointerException ex)
+        {
+            throw new BuildSetupException("Building.json is either missing required fields or is unable to be located. Please check" +
+                    " your file and try again.");
+        }
     }
 }

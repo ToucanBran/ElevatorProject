@@ -2,6 +2,12 @@ package main.java;
 
 import org.apache.log4j.Logger;
 
+/**
+ * ElevatorMoveableImpl is an algorithm for moving an elevator from one floor to the next.
+ * It's also responsible for keeping track of the elevator's current direction and location.
+ *
+ * @author Brandon Gomez
+ */
 public class ElevatorMoveableImpl implements Moveable
 {
     public final Logger log = Logger.getRootLogger();

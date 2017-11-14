@@ -6,6 +6,11 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.function.Function;
 
+/**
+ * TimeManager is responsible for managing the simulation time. It moves time not by a real second but by use
+ * of a counter. For every integer increment, actions are performed across all elevators. This class also is responsible
+ * for generating random Person objects and requesting elevators.
+ */
 public class TimeManager
 {
     private final Logger log = Logger.getRootLogger();
@@ -27,9 +32,11 @@ public class TimeManager
         return currentTime;
     }
 
-    public void runTime()
+    public void runTime() throws BuildSetupException
     {
-        runTime(900,5);
+        int duration = Helpers.getBuildingJson("duration").getAsInt();
+        int peoplePerMinute = Helpers.getBuildingJson("peoplePerMinute").getAsInt();
+        runTime(duration,peoplePerMinute);
     }
 
     // I have a runnable type param here so users can pass in their own simulation people/floor presses
@@ -37,7 +44,7 @@ public class TimeManager
     {
         final int DURATION = duration;
         final double PEOPLE_PER_MINUTE = peoplePerMinute;
-
+        System.out.println("Elevator program loading up...");
         while (currentTime < DURATION)
         {
             requestForElevator(PEOPLE_PER_MINUTE / 60);
@@ -67,26 +74,40 @@ public class TimeManager
         {
             int randomFloor = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
             int randomDestination, direction;
-            do
+            try
             {
-                randomDestination = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
-            }while(randomDestination == randomFloor);
+                String type = Helpers.getBuildingJson("typeOfPerson").getAsString();
+                do
+                {
+                    randomDestination = rand.nextInt(Building.getInstance().getFloors().size()) + 1;
+                } while (randomDestination == randomFloor);
 
-            // TODO:// HACK - Fix this
-            direction = randomDestination < randomFloor ? Directions.DOWN : Directions.UP;
-            String directionString = randomDestination < randomFloor ? "DOWN" : "UP";
+                // TODO:// HACK - Fix this
+                direction = randomDestination < randomFloor ? Directions.DOWN : Directions.UP;
+                String directionString = randomDestination < randomFloor ? "DOWN" : "UP";
 
-            Person p = new Person(randomDestination, "P" + ++peopleInRotation, randomFloor);
-            p.beginWait();
-            Building.getInstance().addToFloor(randomFloor, p);
 
-            log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
-                    p.getName(), randomFloor, directionString, p.getDestination()));
+                Person p = PersonFactory.createPerson(randomDestination, String.format("P%d", ++peopleInRotation), randomFloor, type);
+                p.beginWait();
+                Building.getInstance().addToFloor(randomFloor, p);
 
-            log.info(String.format("Person %s presses %s button on floor %d.",
-                    p.getName(), directionString, randomFloor));
+                log.info(String.format("Person %s created on Floor %d, wants to go %s to floor %d",
+                        p.getName(), randomFloor, directionString, p.getDestination()));
 
-            Building.getInstance().floorButtonPress(randomFloor, direction);
+                log.info(String.format("Person %s presses %s button on floor %d.",
+                        p.getName(), directionString, randomFloor));
+
+                Building.getInstance().floorButtonPress(randomFloor, direction);
+            } catch (BuildSetupException e)
+            {
+                System.out.printf("Missing type of person field in Building.json. Please enter in this field and try again.");
+                System.exit(1);
+            } catch (IllegalArgumentException e)
+            {
+                // This will only happen if for some reason the destination is above the max floor or below the first floor.
+                // Shouldn't ever happen but just in case it does.
+                peopleInRotation--;
+            }
         }
     }
 }

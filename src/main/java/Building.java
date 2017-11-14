@@ -8,37 +8,53 @@ import org.apache.log4j.Logger;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Building class Singleton object which holds all relevant information for the entire building
+ *
+ * @author Brandon Gomez
+ */
 public class Building
 {
-    private final Logger log = Logger.getRootLogger();
     // Always going to have a building instance so just creating one here
-    private static Building building = new Building();
+    private static Building building;
+    private final Logger log = Logger.getRootLogger();
     private ElevatorController ec = new ElevatorController();
     private HashMap<Integer, Floor> floors = new HashMap<>();
     private ElevatorProperties elevatorProperties;
-    private Statistics riderStats, personStats;
 
-    private Building(){
-        setupBuilding();
-        riderStats = StatisticsFactory.createStatistics("Ride");
-        personStats = StatisticsFactory.createStatistics("Person");
+    // Building log keeps track of both ride statistics and person statistics
+    private BuildingLog buildingLog = new BuildingLog();
+    private int topFloor;
+
+    private Building()
+    {
+        try
+        {
+            setupBuilding();
+        } catch (BuildSetupException e)
+        {
+            System.out.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     public static Building getInstance()
     {
+        if (building == null)
+            building = new Building();
+
         return building;
     }
 
-    private void setFloors(int amountOfFloors)
+    private void setFloors(int amountOfFloors, String type) throws BuildSetupException
     {
-        for(int i = 1; i <= amountOfFloors; i++)
+        for (int i = 1; i <= amountOfFloors; i++)
         {
-            Floor floor = new Floor();
+            Floor floor = FloorFactory.createFloor(type);
+            if (floor == null)
+                throw new BuildSetupException("Error with creating floor. Make sure the floor is a valid type.");
             floors.put(i, floor);
         }
     }
@@ -66,7 +82,8 @@ public class Building
     // Used if you want to create people in the JSON file.
     private void addPeopleToFloor(ArrayList<Person> people, int floor)
     {
-        people.stream().forEach((person) -> {
+        people.stream().forEach((person) ->
+        {
             String direction = person.getDestination() > floor ? "up" : "down";
             log.info(String.format("Person %s created on Floor %d, wants to go %s to Floor %d",
                     person.getName(), floor, direction, person.getDestination()));
@@ -75,34 +92,31 @@ public class Building
 
     }
 
-    public ArrayList<Integer> floorButtonPress(int currentFloor, int direction, int excludeElevatorId)
-    {
-        return ec.request(currentFloor, direction, excludeElevatorId);
-    }
     public ArrayList<Integer> floorButtonPress(int currentFloor, int direction)
     {
-       return floorButtonPress(currentFloor, direction, -1);
+        return ec.request(currentFloor, direction);
     }
 
+
     // SetupBuilding reads in the JSON file and sets up building/elevator properties.
-    private void setupBuilding()
+    private void setupBuilding() throws BuildSetupException
     {
-        InputStream jsonStream = Main.class.getResourceAsStream("../resources/building.json");
-        Reader reader = new InputStreamReader(jsonStream);
         Gson gson = new Gson();
 
-        JsonObject jObj = gson.fromJson(reader,JsonObject.class);
-        ElevatorProperties ep = gson.fromJson(jObj.get("elevatorProperties"), ElevatorProperties.class);
-
-        int totalFloors = jObj.get("amountOfFloors").getAsInt();
-        int totalElevators = jObj.get("amountOfElevators").getAsInt();
+        ElevatorProperties ep = gson.fromJson(Helpers.getBuildingJson("elevatorProperties"), ElevatorProperties.class);
+        String typeOfFloor = Helpers.getBuildingJson("typeOfFloor").getAsString();
+        String controllerAlgorithm = Helpers.getBuildingJson("controllerAlgorithm").getAsString();
+        int totalFloors = Helpers.getBuildingJson("amountOfFloors").getAsInt();
+        int totalElevators = Helpers.getBuildingJson("amountOfElevators").getAsInt();
 
         ElevatorDisplay.getInstance().initialize(totalFloors);
-        ec.setMaxWaitTime(Helpers.calculateMaxWaitTime(totalFloors, ep.getMaxFloorTime(),ep.getMaxOpenTime()));
-        ec.setMaxRideTime(Helpers.calculateRideWaitTime(totalFloors, ep.getMaxFloorTime(),ep.getMaxOpenTime()));
+        ec.setMaxWaitTime(Helpers.calculateMaxWaitTime(totalFloors, ep.getMaxFloorTime(), ep.getMaxOpenTime()));
+        ec.setPickingAlgorithm(controllerAlgorithm);
+
         this.elevatorProperties = ep;
         setElevators(totalElevators, ep);
-        setFloors(totalFloors);
+        setFloors(totalFloors, typeOfFloor);
+        topFloor = totalFloors;
     }
 
     public void addToFloor(int floor, Person p)
@@ -116,24 +130,32 @@ public class Building
     }
 
 
-    public void addRiderStat(int startFloor, int destination, double rideTime)
+    //  Overloaded entry adder for different types of logs the building keeps track of.
+    public void addToBuildingLog(TravelProperties travelProperties)
     {
-        Double[] entries = {new Double(startFloor), new Double(destination), rideTime};
-        riderStats.addEntry(entries);
+        buildingLog.addEntry(travelProperties);
     }
 
-    public HashMap<String, List<Double>> getRiderStats()
+    //  Overloaded getter for returning the rider statistics log
+    public HashMap<String, TravelProperties> getRiderStats()
     {
-        return (HashMap<String, List<Double>>) riderStats.getStatistics();
+        return buildingLog.getStatistics("rider");
     }
 
-    public void addPersonStat(PersonProperties personProperties)
+    //  Overloaded entry adder for different types of logs the building keeps track of.
+    public void addToBuildingLog(PersonProperties personProperties)
     {
-        personStats.addEntry(new PersonProperties[]{personProperties});
+        buildingLog.addEntry(personProperties);
     }
 
+    //  Overloaded getter for returning the person statistics log
     public HashMap<String, PersonProperties> getPersonStats()
     {
-        return (HashMap<String, PersonProperties>) personStats.getStatistics();
+        return buildingLog.getStatistics("person");
+    }
+
+    public int getTopFloor()
+    {
+        return topFloor;
     }
 }
