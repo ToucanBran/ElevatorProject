@@ -27,7 +27,9 @@ public abstract class Floor
 
     public abstract void setOffLoaded(Person person);
 
-    public abstract void addWaitTime(double time);
+    public void addWaitTime(double time) {
+        waitTimes.add(time);
+    };
     public ArrayList<Double> getWaitTimes()
     {
         return waitTimes;

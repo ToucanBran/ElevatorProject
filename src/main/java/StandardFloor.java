@@ -12,7 +12,6 @@ import java.util.ArrayList;
 public class StandardFloor extends Floor
 {
     private final Logger log = Logger.getRootLogger();
-    private ArrayList<Double> waitTimes = new ArrayList<>();
     private ArrayList<Person> waiting = new ArrayList<>();
     private ArrayList<Person> offLoaded = new ArrayList<>();
 
@@ -41,6 +40,6 @@ public class StandardFloor extends Floor
 
     public void addWaitTime(double time)
     {
-        waitTimes.add(time);
+        super.addWaitTime(time);
     }
 }

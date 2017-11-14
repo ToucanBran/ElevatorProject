@@ -74,9 +74,8 @@ public class TimeReport implements Report
         double[][] averageTimes = new double[totalFloors][totalFloors];
         Building.getInstance().getRiderStats().entrySet().forEach(entry ->
                 {
-                    String[] startEndFloors = entry.getKey().split("-");
-                    int startFloor = Integer.parseInt(startEndFloors[0]) - 1;
-                    int endFloor = Integer.parseInt(startEndFloors[1]) - 1;
+                    int startFloor = entry.getValue().getStartFloor();
+                    int endFloor = entry.getValue().getDestination();
                     List<Double> times = entry.getValue().getRideTimes();
 
                     double time = 0;

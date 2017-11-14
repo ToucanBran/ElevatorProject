@@ -26,7 +26,7 @@ public class TravelProperties
     {
         this.startFloor = startFloor;
         this.destination = destination;
-        addRideTime(rideTimes);
+        addRideTime(rideTime);
     }
 
     public int getStartFloor()
